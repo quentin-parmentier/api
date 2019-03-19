@@ -21,6 +21,10 @@ class EventController extends Controller
         $where = [];
         $whereIN = [];
 
+        $today = date ('Y-m-d');
+
+        $where[] = ['date', '>', $today];
+
         if($request->search != ""){
 
             //Longitude 0,01 Nancy <---> Lat 0,05
@@ -42,10 +46,10 @@ class EventController extends Controller
 
                 if(sizeof($ville) != 0){
 
-                    $where[] = ['lat', '>=' , $ville[0]->ville_latitude_deg-0.025];
-                    $where[] = ['lat', '<=' , $ville[0]->ville_latitude_deg+0.025];
-                    $where[] = ['lng', '>=' , $ville[0]->ville_longitude_deg-0.05];
-                    $where[] = ['lng', '<=' , $ville[0]->ville_longitude_deg+0.05];
+                    $where[] = ['lat', '>=' , $ville[0]->ville_latitude_deg-0.045];
+                    $where[] = ['lat', '<=' , $ville[0]->ville_latitude_deg+0.045];
+                    $where[] = ['lng', '>=' , $ville[0]->ville_longitude_deg-0.06];
+                    $where[] = ['lng', '<=' , $ville[0]->ville_longitude_deg+0.06];
 
                 }else{
 
@@ -63,10 +67,10 @@ class EventController extends Controller
 
                 if(sizeof($ville) != 0){
 
-                    $where[] = ['lat', '>=' , $ville[0]->ville_latitude_deg-0.025];
-                    $where[] = ['lat', '<=' , $ville[0]->ville_latitude_deg+0.025];
-                    $where[] = ['lng', '>=' , $ville[0]->ville_longitude_deg-0.05];
-                    $where[] = ['lng', '<=' , $ville[0]->ville_longitude_deg+0.05];
+                    $where[] = ['lat', '>=' , $ville[0]->ville_latitude_deg-0.045];
+                    $where[] = ['lat', '<=' , $ville[0]->ville_latitude_deg+0.045];
+                    $where[] = ['lng', '>=' , $ville[0]->ville_longitude_deg-0.06];
+                    $where[] = ['lng', '<=' , $ville[0]->ville_longitude_deg+0.06];
 
                 }else{
 
@@ -96,10 +100,10 @@ class EventController extends Controller
                 
             }
 
-            if(sizeof($sport_ville) != 0){ //On teste les sports
+            if(sizeof($sport_ville) != 0){ //On teste les sports (A changer)
 
 
-                $sportspossible = DB::table('event')->select('sport')->distinct()->whereIn('sport', $sport_ville[0])->get();
+                $sportspossible = DB::table('eventsport')->select('sport')->distinct()->whereIn('sport', $sport_ville[0])->get();
 
                 if(sizeof($sportspossible) != 0){
 
@@ -113,14 +117,14 @@ class EventController extends Controller
 
                     $whereIN = $lesports;
 
-                    $events['events'] = DB::table('event')->where($where)->whereIn('sport',$whereIN)->get();
+                    $events['events'] = DB::table('eventsport')->where($where)->whereIn('sport',$whereIN)->get();
 
                     return $events;
                 }
 
             }
 
-            $events['events'] = DB::table('event')->where($where)->get();
+            $events['events'] = DB::table('eventsport')->where($where)->get();
 
             return $events;
             
@@ -144,19 +148,19 @@ class EventController extends Controller
         $where[] = ['lng', '>=' , $request->lng1];
         $where[] = ['lng', '<=' , $request->lng2];
 
-        $today = date ('Y-m-d');
-
-        $where[] = ['date', '>', $today];
+        
 
         if($request->sport != ""){
 
-            $events['events'] = DB::table('event')->where($where)->whereIn('sport',$request->sport)->orderBy('date', 'asc')->get();
+            //Requete
+
+            $events['events'] = DB::table('eventsport')->where($where)->whereIn('sport',$request->sport)->orderBy('date', 'asc')->get();
 
             return $events;
 
         }
 
-        $events = DB::table('event')->where($where)->orderBy('date', 'asc')->get();
+        $events = DB::table('eventsport')->where($where)->orderBy('date', 'asc')->get();
         
 
         $eventsreturn['events'] = $events;
@@ -251,9 +255,19 @@ class EventController extends Controller
 
         if($request->dateevent >= date ('Y-m-d')){
 
+            $sport = $request->sport;
+
+            $id_sport = DB::table('sport')
+                    ->select('id_sport')
+                    ->where('sport','=',$sport)->get();
+
+
+
+            $id_sport = $id_sport[0]->id_sport;
+
             $idevent = DB::table('event')->insertGetId([
 
-                'sport' => $request->sport,
+                'sport' => $id_sport,
                 'date' => $request->dateevent,
                 'time' => $request->heure,
                 'description' => $request->desc,

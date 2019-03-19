@@ -27,6 +27,7 @@ class CreateUsers extends Migration
             $table->string('telephone')->nullable();
             $table->string('country')->nullable();
             $table->string('description')->nullable();
+            $table->string('mdp');
         });
 
     }

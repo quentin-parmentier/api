@@ -15,7 +15,7 @@ class CreateSport extends Migration
     {
         Schema::create('sport', function (Blueprint $table) {
             $table->increments('id_sport');
-            $table->string('nom');
+            $table->string('sport');
             $table->string('categorie');
         });
     }

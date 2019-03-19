@@ -44,6 +44,9 @@ class ProfilController extends Controller
         $telephone = $user['telephone'];
         $birthday = $request->birthday;
         $description = $user['description'];
+        $ville = $user['ville'];
+        //$cp = $user['cp'];
+        $country = $user['country'];
 
         $sports = $request->sports;
         $iduser = $request->iduser;
@@ -58,7 +61,9 @@ class ProfilController extends Controller
                 'telephone' => $telephone,
                 'mail' => $mail,
                 'description' => $description,
-                'birthday' => $birthday
+                'birthday' => $birthday,
+                'ville' => $ville,
+                'country' => $country
 
             ]);
 
@@ -67,9 +72,17 @@ class ProfilController extends Controller
 
         foreach ($sports as $key => $sport) {
             
+
+            $id_sport = DB::table('sport')
+                    ->select('id_sport')
+                    ->where('sport','=',$sport)->get();
+
+            $id_sport = $id_sport[0]->id_sport;
+
+
             DB::table('sport_user')->insert([
 
-                'sport' => $sport,
+                'id_sport' => $id_sport,
                 'id_user' => $iduser,
                 
             ]);
@@ -96,7 +109,7 @@ class ProfilController extends Controller
         $user['user'] = DB::table('users')
                     ->where('id_user',$id)->get();
 
-        $sports = DB::table('sport_user')
+        $sports = DB::table('sport_user')->join('sport', 'sport.id_sport', '=', 'sport_user.id_sport')
                     ->select('sport')
                     ->where('id_user',$id)->get();
 
@@ -141,5 +154,39 @@ class ProfilController extends Controller
     public function destroy($id)
     {
         //
+    }
+
+
+    public function toutesvilles(){
+
+        $tab_rendu_villes = [];
+        $tab_rendu_cp = [];
+        $tab_rendu_sports = [];
+
+
+        $villes = DB::table('villes_france_free')->select('ville_nom_simple')->orderBy('ville_nom_simple','asc')->get();
+        $sports = DB::table('sport')->select('sport')->orderBy('sport','asc')->get();
+        $cps = DB::table('villes_france_free')->select('ville_code_postal')->get();
+
+        foreach ($villes as $key => $ville) {
+            $tab_rendu_villes[] = $ville->ville_nom_simple;
+        }
+
+        foreach ($cps as $key => $cp) {
+            
+            $tab_rendu_cp[] = $cp->ville_code_postal;
+        }
+
+        foreach ($sports as $key => $sport) {
+            
+            $tab_rendu_sports[] = $sport->sport;
+        }
+
+        $return['villes'] = $tab_rendu_villes;
+        $return['cps'] = $tab_rendu_cp;
+        $return['sports'] = $tab_rendu_sports;
+
+
+        return $return;
     }
 }

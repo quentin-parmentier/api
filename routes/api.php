@@ -39,6 +39,8 @@ Route::post('leave', 'JoinController@leave');
 //Routes pour profil
 
 Route::resource('profil', 'ProfilController');
+Route::get('toutesvilles', 'ProfilController@toutesvilles'); //GET des events qu'on a créé
+
 
 //Creation Connexion
 Route::post('connexion', 'LoginController@connexion');
